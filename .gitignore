@@ -1,0 +1,32 @@
+# maven ignore
+target/
+*.war
+*.zip
+*.tar
+
+# eclipse ignore
+.settings/
+.project
+.classpath
+
+# idea ignore
+.idea/
+*.ipr
+*.iml
+*.iws
+
+# temp ignore
+*.log
+*.cache
+*.diff
+*.patch
+*.tmp
+
+*.log.*
+*/.DS_Store
+.DS_Store
+*/metastore_db
+
+/report
+
+.factorypath
