@@ -1,4 +1,4 @@
-package com.lf.test.wc
+package com.lf.test.source
 
 /**
  * @Classname SensorReading

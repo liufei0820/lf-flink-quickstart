@@ -1,5 +1,7 @@
-package com.lf.test.wc
+package com.lf.test.transfor
 
+import com.lf.test.source.SensorReading
+import org.apache.flink.api.java.functions.KeySelector
 import org.apache.flink.streaming.api.scala._
 
 /**
@@ -55,3 +57,10 @@ object TransformTest {
   }
 
 }
+
+class MyIDSelector() extends KeySelector[SensorReading, String] {
+  override def getKey(in: SensorReading): String = in.id
+}
+
+
+
