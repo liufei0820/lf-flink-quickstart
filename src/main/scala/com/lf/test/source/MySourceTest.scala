@@ -6,7 +6,7 @@ import org.apache.flink.streaming.api.functions.source.SourceFunction
 import org.apache.flink.streaming.api.scala._
 
 /**
- * @Classname MySourceTest
+ * @Classname MySourceTest 自定义source
  * @Date 2020/8/11 下午2:25
  * @Created by fei.liu
  */

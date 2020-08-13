@@ -1,11 +1,11 @@
 package com.lf.test.transfor
 
-import com.lf.test.source.SensorReading
+import com.lf.test.source.{MySensorSource, SensorReading}
 import org.apache.flink.api.java.functions.KeySelector
 import org.apache.flink.streaming.api.scala._
 
 /**
- * @Classname TransformTest
+ * @Classname 分流合流
  * @Date 2020/8/11 下午3:52
  * @Created by fei.liu
  */
@@ -15,15 +15,10 @@ object TransformTest {
 
     val environment = StreamExecutionEnvironment.getExecutionEnvironment
 
-    val source = environment.readTextFile("/path")
-
-    val dataStream = source.map(data => {
-      val dataArr = data.split(",")
-      SensorReading(dataArr(0), dataArr(1).toLong, dataArr(1).toDouble)
-    })
+    val source = environment.addSource(new MySensorSource())
 
     // 分流
-    val splitStream = dataStream.split(data => {
+    val splitStream = source.split(data => {
       if (data.temp > 30) {
         Seq("high")
       } else {
@@ -36,9 +31,9 @@ object TransformTest {
 
     val allTempStream = splitStream.select("high", "low")
 
-    highTempStream.print("high")
-    lowTempStream.print("low")
-    allTempStream.print("all")
+//    highTempStream.print("high")
+//    lowTempStream.print("low")
+//    allTempStream.print("all")
 
 
     // 合流
@@ -52,7 +47,9 @@ object TransformTest {
       lowData => (lowData.id, "normal")
     )
 
-    environment.execute("temp")
+    resultStream.print("result")
+
+    environment.execute("transform")
 
   }
 
