@@ -5,9 +5,12 @@ import java.util.Random
 import com.lf.test.source.SensorReading
 import org.apache.flink.api.common.functions.ReduceFunction
 import org.apache.flink.api.java.tuple.Tuple
+import org.apache.flink.streaming.api.TimeCharacteristic
+import org.apache.flink.streaming.api.functions.AssignerWithPeriodicWatermarks
 import org.apache.flink.streaming.api.functions.source.SourceFunction
 import org.apache.flink.streaming.api.scala._
 import org.apache.flink.streaming.api.scala.function.WindowFunction
+import org.apache.flink.streaming.api.watermark.Watermark
 import org.apache.flink.streaming.api.windowing.assigners.EventTimeSessionWindows
 import org.apache.flink.streaming.api.windowing.time.Time
 import org.apache.flink.streaming.api.windowing.windows.TimeWindow
@@ -24,6 +27,8 @@ object WindowTest {
     val env = StreamExecutionEnvironment.getExecutionEnvironment
 
     env.setParallelism(1)
+    env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime)
+    env.getConfig.setAutoWatermarkInterval(500l)
 
     val inputStream = env.addSource(new MySensorSource())
 
@@ -93,3 +98,18 @@ class MyWindowFunction extends WindowFunction[SensorReading, (Long, Int), Tuple,
     out.collect((window.getStart, input.size))
   }
 }
+
+// 自定义一个周期性生成watermark的Assigner
+class MyWMAssigner extends AssignerWithPeriodicWatermarks[SensorReading] {
+  // 需要两个关键参数，延迟时间，和当前所有数据中最大的时间戳
+  val lateness: Long = 1000
+  var maxTs: Long = Long.MinValue
+
+  override def getCurrentWatermark: Watermark = new Watermark(maxTs - lateness)
+
+  override def extractTimestamp(element: SensorReading, l: Long): Long = {
+    maxTs = maxTs.max(element.timestamp * 1000)
+    element.timestamp * 1000
+  }
+}
+

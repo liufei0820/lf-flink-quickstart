@@ -3,7 +3,9 @@ package com.lf.test.source
 import java.util.Random
 
 import org.apache.flink.streaming.api.functions.source.SourceFunction
+import org.apache.flink.streaming.api.functions.timestamps.BoundedOutOfOrdernessTimestampExtractor
 import org.apache.flink.streaming.api.scala._
+import org.apache.flink.streaming.api.windowing.time.Time
 
 /**
  * @Classname MySourceTest 自定义source
@@ -18,6 +20,10 @@ object MySourceTest {
     val env = StreamExecutionEnvironment.getExecutionEnvironment
 
     val myStream = env.addSource(new MySensorSource())
+//        .assignAscendingTimestamps(_.timestamp * 1000)
+        .assignTimestampsAndWatermarks(new BoundedOutOfOrdernessTimestampExtractor[SensorReading](Time.seconds(1)) {
+          override def extractTimestamp(element: SensorReading): Long = element.timestamp * 1000
+        })
 
     myStream.print("mystream")
 
