@@ -8,6 +8,7 @@ import org.apache.flink.api.java.tuple.Tuple
 import org.apache.flink.streaming.api.TimeCharacteristic
 import org.apache.flink.streaming.api.functions.AssignerWithPeriodicWatermarks
 import org.apache.flink.streaming.api.functions.source.SourceFunction
+import org.apache.flink.streaming.api.functions.timestamps.BoundedOutOfOrdernessTimestampExtractor
 import org.apache.flink.streaming.api.scala._
 import org.apache.flink.streaming.api.scala.function.WindowFunction
 import org.apache.flink.streaming.api.watermark.Watermark
@@ -31,6 +32,9 @@ object WindowTest {
     env.getConfig.setAutoWatermarkInterval(500l)
 
     val inputStream = env.addSource(new MySensorSource())
+//      .assignTimestampsAndWatermarks(new BoundedOutOfOrdernessTimestampExtractor[SensorReading](Time.seconds(1000l)) {
+//        override def extractTimestamp(element: SensorReading): Long = element.timestamp * 1000l
+//      })
 
     val resultStream = inputStream.keyBy("id")
 //      .window(EventTimeSessionWindows.withGap(Time.minutes(1))) // 会话创建
