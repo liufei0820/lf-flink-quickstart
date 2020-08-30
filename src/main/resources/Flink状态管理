@@ -36,6 +36,35 @@
 operator state：针对当前任务所有输入的数据可见
 keyed state：状态只针对当前key的数据可见，对每个key维护和管理一份状态实例
 
+六、状态后端（State Backends）
+1、每传入一条数据，有状态的算子任务都会读取和更新状态
+2、由于有效的状态访问对于处理数据的低延迟至关重要，因此每个并行任务都会在本地维护其状态，以确保快速的状态访问
+3、状态的存储、访问以及维护，由一个可插入的组件决定，这个组件就叫做状态后端（State backend）
+4、状态后端主要负责两件事，本地的状态管理，以及将检查点（checkpoint）状态写入远程存储
+
+七、选择一个状态后端
+1、MemoryStateBackend：内存级的状态后端，会将键控状态作为内存中的对象进行管理，将他们存储在TaskManager的JVM堆上，
+                        而将checkpoint存储在JobManager的内存中
+    特点：快速、低延迟，但不稳定
+2、FsStateBackend：将checkpoint存储到远程持久化文件系统（FileSystem）上，而对于本地状态，跟MemoryStateBackend
+                        一样，也会存储在TaskManager的JVM堆上
+    特点：同时拥有内存级的本地访问速度，和更好的容错保证
+3、RocksDBStateBackend：将所有状态序列化后，存入本地的RocksDB中
+
+八、使用Keyed state，必需在keyby之后的操作中（基于一个keyedstream）
+
+九、什么样的算子可以用状态，什么时候是有状态的计算？
+可以认为所有的算子都可以有状态，map/filter/flatmap本来是无状态的，但是可以通过实现RichFunction，在其中自定义状态进行操作
+reduce/aggregate/window 本来就是有状态的，是flink底层直接管理的，我们也可以实现RichFunction自定义实现
+Process Function是一类特殊的函数类，是.process()方法的参数
+DataStream/KeyedStream/ConnectedStream/WindowedStream等等都可以调用.process(）方法
+
+
+
+
+
+
+
 
 
 
