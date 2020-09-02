@@ -12,7 +12,7 @@ import org.apache.flink.table.descriptors.{Csv, FileSystem, OldCsv, Schema}
  *
  * 从外部系统中读取数据，在环境中注册表
  */
-object TableApiTest2 {
+object TableApiFileTest {
 
   def main(args: Array[String]): Unit = {
 
