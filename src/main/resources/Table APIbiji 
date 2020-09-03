@@ -1,0 +1,35 @@
+1、Table api程序的主要结构
+所有的操作基于Table
+在环境里注册表，可以用connect方法连接到不同的外部系统，定义好format和schema
+对于输入和输出的表，TableSource和TableSink，创建的时候不做区分，主要是后面的处理逻辑决定
+
+2、调用Table的insertInto方法，可以将数据写入TableSink
+
+3、动态表和持续查询
+这是刘处理程序转换成表结果的核心概念
+
+4、更新模式
+Append（仅追究），Retract（撤回 ADD和delete），Upsert（upsert和delete）
+
+5、时间语义的定义
+.proctime处理时间
+.rowtime 事件事件
+
+6、窗口
+在Table和SQL中，主要有两种窗口
+Group windows（分组窗口）：根据时间或行计数间隔，将行聚合到有限的组（group）中，并对每个组的数据执行一次聚合
+Over windows：针对每个输入行，计算相邻行范围内的聚合
+
+滚动窗口（Tumbling windows）
+    事件时间 .window(tumble over 10.minutes on 'rowtime as 'w)
+    处理时间 .window(tumble over 10.minutes on 'proctime as 'w)
+    计数窗口 .window(tumble over 10.rows on 'proctime as 'w)
+滑动窗口（Sliding windows）
+    事件时间 .window(slide over 10.minutes every 5.minutes on 'rowtime as 'w)
+    处理时间 .window(slide over 10.minutes every 5.minutes on 'proctime as 'w)
+    滑动计数窗口 .window(silde over 10.rows every 5.rows on 'proctime as 'w)
+会话窗口（session）
+    事件时间 .window(Session withGap 10.minutes on 'rowtime as 'w)
+    处理时间 .window(Session withGap 10.minutes on 'proctime as 'w)
+无界over windows
+    .window(over partitionBy 'a orderBy 'rowtime preceding UNBOUNDED_RANGE as 'w)
